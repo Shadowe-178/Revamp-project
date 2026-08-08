@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8" />
+    <title>暗棋</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
+        .layout { display: grid; grid-template-columns: 260px 1fr; gap: 16px; padding: 16px; }
+        .panel { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 16px; box-shadow: 0 2px 6px rgba(0,0,0,.05); }
+        .controls { display: flex; flex-direction: column; gap: 8px; }
+        .controls button, .controls select { width: 100%; padding: 8px; }
+        .turn-box { background: #f3f4f6; border-radius: 6px; padding: 8px 10px; font-weight: bold; margin-bottom: 8px; }
+        #boardContainer { margin: 12px 0; }
+        table.dark-board { border-collapse: collapse; margin: 0 auto; }
+        table.dark-board td { width: 64px; height: 64px; text-align: center; vertical-align: middle; border: 1px solid #444; cursor: pointer; font-size: 28px; font-weight: bold; position: relative; }
+        table.dark-board td.revealed { background: #fff1d6; }
+        table.dark-board td.hidden { background: #3a3a3a; color: #fff; }
+        table.dark-board td.hidden::before { content: ''; display: inline-block; width: 38px; height: 38px; border-radius: 50%; background: #e9e9e9; border: 2px solid #2d2d2d; box-shadow: inset 0 0 0 4px rgba(0,0,0,0.1); }
+        table.dark-board td.selected { outline: 3px solid #54a0ff; }
+        table.dark-board td.highlight { background: #b6f7b6; }
+        .hidden-inputs { display: none; }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <aside class="panel">
+        <h2>控制面板</h2>
+        <div id="leftTurnInfo" class="turn-box">輪到：紅方</div>
+        <div class="controls">
+            <button onclick="location.href='/chess'">中國象棋</button>
+            <button onclick="location.href='/dark'">暗棋</button>
+            <button onclick="moveDark()">走子</button>
+            <button onclick="undoDark()">悔棋</button>
+            <button onclick="aiDark()">AI 提示</button>
+            <button onclick="initDark()">重新開始</button>
+            <button onclick="location.href='/'">返回首頁</button>
+        </div>
+    </aside>
+
+    <main class="panel">
+        <h1>暗棋</h1>
+        <div id="message">請初始化暗棋棋盤。</div>
+        <div id="turnInfo" class="turn-box">回合：紅方</div>
+        <div id="boardContainer"></div>
+        <div class="hidden-inputs">
+            <input id="darkFlipX" type="hidden" />
+            <input id="darkFlipY" type="hidden" />
+            <input id="darkFromX" type="hidden" />
+            <input id="darkFromY" type="hidden" />
+            <input id="darkToX" type="hidden" />
+            <input id="darkToY" type="hidden" />
+        </div>
+    </main>
+</div>
+<script src="/js/dark.js"></script>
+</body>
+</html>

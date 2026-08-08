@@ -1,0 +1,1 @@
+# SmartChess frontend placeholder\n\nThis folder contains frontend assets and static files for the SmartChess project.

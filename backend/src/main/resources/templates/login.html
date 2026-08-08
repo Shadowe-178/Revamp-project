@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>SmartChess 登入</title>
+</head>
+<body>
+<h1>SmartChess 登入</h1>
+<div th:if="${error}">
+    <strong th:text="${error}"></strong>
+</div>
+<form action="/login" method="post" th:object="${loginDto}">
+    <label>帳號：<input type="text" th:field="*{username}" required /></label><br />
+    <label>密碼：<input type="password" th:field="*{password}" required /></label><br />
+    <button type="submit">登入</button>
+</form>
+<p><a href="/register">註冊新帳號</a></p>
+</body>
+</html>

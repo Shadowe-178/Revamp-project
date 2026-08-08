@@ -1,0 +1,24 @@
+target/
+*.log
+*.class
+*.jar
+*.war
+*.iml
+/.idea
+/.vscode
+.DS_Store
+*.swp
+*.tmp
+cookies.txt
+classpath
+overlays
+
+# Spring Boot
+spring.log
+
+# Backend build output
+/backend/target/
+
+# Frontend build output
+/frontend/node_modules/
+/frontend/dist/

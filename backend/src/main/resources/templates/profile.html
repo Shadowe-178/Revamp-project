@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>個人資料</title>
+</head>
+<body>
+<h1>個人資料</h1>
+<div th:if="${profile}">
+    <p>帳號：<span th:text="${profile.username}"></span></p>
+    <p>暱稱：<span th:text="${profile.displayName}"></span></p>
+    <p>對局數：<span th:text="${profile.totalGames}"></span></p>
+    <p>勝場：<span th:text="${profile.winCount}"></span></p>
+    <p>中國象棋對局：<span th:text="${profile.chessGames}"></span></p>
+    <p>暗棋對局：<span th:text="${profile.darkGames}"></span></p>
+    <p>勝率：<span th:text="${profile.winRate}"></span>%</p>
+</div>
+<p><a href="/">返回首頁</a></p>
+</body>
+</html>

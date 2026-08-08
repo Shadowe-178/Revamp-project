@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8" />
+    <title>中國象棋</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
+        .layout { display: grid; grid-template-columns: 260px 1fr; gap: 16px; padding: 16px; }
+        .panel { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 16px; box-shadow: 0 2px 6px rgba(0,0,0,.05); }
+        .controls { display: flex; flex-direction: column; gap: 8px; }
+        .controls button, .controls select { width: 100%; padding: 8px; }
+        #boardContainer { margin: 12px 0; }
+        .xiangqi-board-frame { position: relative; width: 640px; max-width: 100%; margin: 0 auto; aspect-ratio: 8 / 9; background: #f4d5a3; border: 4px solid #7b4f23; box-sizing: border-box; }
+        .xiangqi-board-surface { position: absolute; inset: 0; }
+        .xiangqi-grid { position: absolute; left: 0; width: 100%; height: calc(400% / 9); background-image: linear-gradient(to right, #7b4f23 1px, transparent 1px), linear-gradient(to bottom, #7b4f23 1px, transparent 1px); background-size: calc(100% / 8) 25%; pointer-events: none; }
+        .xiangqi-grid-top { top: 0; border-bottom: 1px solid #7b4f23; }
+        .xiangqi-grid-bottom { bottom: 0; border-top: 1px solid #7b4f23; }
+        .xiangqi-palace-box { position: absolute; left: 25%; width: 50%; height: 22%; border: 2px solid #7b4f23; box-sizing: border-box; pointer-events: none; }
+        .xiangqi-palace-box-top { top: 11%; }
+        .xiangqi-palace-box-bottom { bottom: 11%; }
+        .xiangqi-palace-box::before { content: ''; position: absolute; inset: 0; background: linear-gradient(45deg, transparent 49.2%, #7b4f23 49.5%, #7b4f23 50.5%, transparent 50.8%), linear-gradient(-45deg, transparent 49.2%, #7b4f23 49.5%, #7b4f23 50.5%, transparent 50.8%); }
+        .xiangqi-board-frame::before, .xiangqi-board-frame::after { position: absolute; top: 50%; z-index: 1; transform: translateY(-50%); color: #7b4f23; font-size: 24px; font-weight: bold; letter-spacing: 14px; pointer-events: none; }
+        .xiangqi-board-frame::before { content: '\695a\6cb3'; left: 22%; }
+        .xiangqi-board-frame::after { content: '\6f22\754c'; right: 22%; }
+        .intersection-point { position: absolute; width: 52px; height: 52px; transform: translate(-50%, -50%); border: 0; background: transparent; cursor: pointer; z-index: 2; }
+        .intersection-point.selected { outline: 3px solid #54a0ff; border-radius: 50%; }
+        .intersection-point.highlight { background: rgba(182, 247, 182, .75); border-radius: 50%; }
+        .piece-token { display: inline-flex; width: 42px; height: 42px; align-items: center; justify-content: center; border: 1px solid #666; border-radius: 50%; background: #fff; font-weight: bold; font-size: 28px; }
+        .piece-token.red { color: #a52727; }
+        .piece-token.black { color: #111; }
+        table.chess-board { border-collapse: collapse; margin: 0 auto; }
+        table.chess-board td { width: 48px; height: 48px; text-align: center; vertical-align: middle; border: 1px solid #444; cursor: pointer; }
+        table.chess-board td.red { background: #ffe7d5; }
+        table.chess-board td.black { background: #d5d5d5; }
+        table.chess-board td.selected { outline: 3px solid #54a0ff; }
+        table.chess-board td.highlight { background: #b6f7b6; }
+        .board-header { text-align: center; margin-top: 10px; }
+        .status-line { font-size: 14px; margin-bottom: 8px; padding: 8px; background: #f4f8ff; border-radius: 4px; }
+        .history-list { max-height: 160px; overflow: auto; font-size: 13px; }
+        .hidden-inputs { display: none; }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <aside class="panel">
+        <h2>控制面板</h2>
+        <div class="controls">
+            <button onclick="location.href='/chess'">中國象棋</button>
+            <button onclick="location.href='/dark'">暗棋</button>
+            <button onclick="location.href='/chess'">雙人對弈</button>
+            <button onclick="location.href='/chess'">AI 對戰</button>
+            <label>AI 難度
+                <select id="aiLevel">
+                    <option value="random">初級</option>
+                    <option value="minimax">中級</option>
+                    <option value="alphabeta">高級</option>
+                </select>
+            </label>
+            <button onclick="undoChess()">悔棋</button>
+            <button onclick="initChess()">重新開始</button>
+            <button onclick="saveChessGame()">儲存棋局</button>
+            <button onclick="loadChessGame()">載入棋局</button>
+            <button onclick="aiChess()">AI 分析</button>
+            <button onclick="location.href='/'">返回首頁</button>
+        </div>
+    </aside>
+
+    <main class="panel">
+        <h1>中國象棋</h1>
+        <div id="statusBar" class="status-line">請初始化棋盤。</div>
+        <div id="turnInfo" class="status-line">回合：紅方</div>
+        <div id="aiInfo" class="status-line">AI 資訊：未啟動</div>
+        <div id="boardContainer"></div>
+        <div class="hidden-inputs">
+            <input id="chessFrom" type="hidden" />
+            <input id="chessTo" type="hidden" />
+        </div>
+        <div class="status-line">吃子紀錄</div>
+        <div id="moveHistory" class="history-list"></div>
+    </main>
+</div>
+<script src="/js/chess.js"></script>
+</body>
+</html>

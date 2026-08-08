@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>SmartChess 首頁</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        .layout { display: grid; grid-template-columns: 280px 1fr; gap: 24px; }
+        .panel { border: 1px solid #ddd; border-radius: 8px; padding: 16px; }
+        nav ul { list-style: none; padding: 0; margin: 0; }
+        nav li { margin-bottom: 10px; }
+        a { text-decoration: none; color: #0057b8; }
+        .status { margin-top: 12px; padding: 12px; background: #f4f8ff; border-radius: 6px; }
+    </style>
+</head>
+<body>
+<h1>SmartChess 首頁</h1>
+<div class="layout">
+    <div class="panel">
+        <h2>功能面板</h2>
+        <nav>
+            <ul>
+                <li><a href="/chess">中國象棋</a></li>
+                <li><a href="/dark">暗棋</a></li>
+                <li><a href="/chess">雙人對弈</a></li>
+                <li><a href="/chess">AI 對戰</a></li>
+                <li><a href="/chess">悔棋</a></li>
+                <li><a href="/chess">重新開始</a></li>
+                <li><a href="/history">棋譜</a></li>
+                <li><a href="/replay">儲存 / 載入棋局</a></li>
+                <li><a href="/logout">登出</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="panel">
+        <p th:text="${user} != null ? '歡迎，' + ${user} : '請先登入。'"></p>
+        <div class="status">
+            <strong>目前已串接的專案入口</strong>
+            <ul>
+                <li>中國象棋：<a href="/chess">進入對局</a></li>
+                <li>暗棋：<a href="/dark">進入對局</a></li>
+                <li>棋譜紀錄：<a href="/history">查看歷史對局</a></li>
+                <li>排行榜：<a href="/ranking">查看排名</a></li>
+                <li>個人資料：<a href="/profile">檢視資料</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartChess</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <aside class="sidebar">
+        <h1>SmartChess</h1>
+        <div id="leftTurnInfo" class="left-turn-info">輪到：紅方</div>
+        <button data-mode="xiangqi">中國象棋</button>
+        <button data-mode="darkChess">暗棋</button>
+        <button data-mode="darkAi">暗棋 AI 對戰</button>
+        <button data-mode="pvp">雙人對弈</button>
+        <button data-mode="ai">AI 對戰</button>
+        <label>AI 難度</label>
+        <select id="aiLevel">
+          <option value="random">初級</option>
+          <option value="minimax">中級</option>
+          <option value="alphabeta">高級</option>
+        </select>
+        <button id="undoBtn">悔棋</button>
+        <button id="restartBtn">重新開始</button>
+        <button id="saveBtn">儲存棋局</button>
+        <button id="loadBtn">載入棋局</button>
+        <button id="logoutBtn">登出</button>
+      </aside>
+
+      <main class="main-view">
+        <section id="boardContainer" class="board-container"></section>
+        <section class="history-panel">
+          <div class="history-status">
+            <div id="statusMessage">系統已就緒</div>
+            <div id="modeInfo">模式：中國象棋</div>
+            <div id="turnInfo">回合：紅方</div>
+            <div id="aiInfo">AI：未啟動</div>
+          </div>
+          <h2>吃子紀錄</h2>
+          <div id="historyList">尚無紀錄</div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="/js/app.js"></script>
+  </body>
+</html>
