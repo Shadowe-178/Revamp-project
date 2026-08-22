@@ -59,12 +59,19 @@ public class PlayerController {
     }
 
     @GetMapping("/")
-    public String index(Model model, HttpServletRequest request) {
-        String username = (String) request.getSession().getAttribute("user");
-        model.addAttribute("title", "SmartChess");
-        model.addAttribute("user", username);
-        return "index";
+public String index(Model model, HttpServletRequest request) {
+    String username = (String) request.getSession().getAttribute("user");
+
+    // 沒有登入就不能進入遊戲
+    if (username == null) {
+        return "redirect:/login";
     }
+
+    model.addAttribute("title", "SmartChess");
+    model.addAttribute("user", username);
+
+    return "index";
+}
 
     @GetMapping("/profile")
     public String profile(Model model, HttpServletRequest request) {
