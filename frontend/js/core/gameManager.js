@@ -262,7 +262,9 @@ async function flipDarkCell(x, y) {
     y
   };
 
-  const response = await fetch('/api/dark/flip', {
+  const activeMode = config.modes[currentMode] || config.modes.darkChess;
+
+const response = await fetch(`${activeMode.apiBase}/flip`,  {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
