@@ -10,34 +10,63 @@ export async function getAiMove({
   const activeMode =
     config.modes[mode] || config.modes.xiangqi;
 
-  const response = await fetch(`${activeMode.apiBase}/ai`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    credentials: 'include',
-    body: JSON.stringify({
-      board,
-      color,
-      level,
-      mode,
-      revealed
-    })
-  });
+  const apiUrl = `${activeMode.apiBase}/ai`;
 
-  if (!response.ok) {
-    console.error(
-      'AI API 失敗:',
-      response.status,
-      response.statusText
-    );
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        board,
+        color,
+        level,
+        mode,
+        revealed
+      })
+    });
 
+    const contentType =
+      response.headers.get('content-type') || '';
+
+    const rawText = await response.text();
+
+    console.log('===== AI API DEBUG =====');
+    console.log('URL:', apiUrl);
+    console.log('Status:', response.status);
+    console.log('Content-Type:', contentType);
+    console.log('Response:', rawText);
+
+    if (!response.ok) {
+      console.error(
+        'AI API failed:',
+        response.status,
+        response.statusText,
+        rawText
+      );
+
+      return null;
+    }
+
+    if (!contentType.includes('application/json')) {
+      console.error(
+        'AI API did not return JSON:',
+        contentType
+      );
+
+      return null;
+    }
+
+    const state = JSON.parse(rawText);
+
+    console.log('AI API parsed response:', state);
+
+    return state;
+
+  } catch (error) {
+    console.error('AI API request error:', error);
     return null;
   }
-
-  const state = await response.json();
-
-  console.log('★★★★★ AI API Response ★★★★★', state);
-
-  return state;
 }
