@@ -82,9 +82,14 @@ function bindUiControls() {
   saveBtn?.addEventListener('click', saveGame);
   loadBtn?.addEventListener('click', loadGame);
 
-  logoutBtn?.addEventListener('click', async () => {
+    logoutBtn?.addEventListener('click', async () => {
     try {
-      const response = await fetch('/logout', {
+      const API_BASE =
+        window.location.hostname === 'shadowe-178.github.io'
+          ? 'https://smartchess-5oeu.onrender.com'
+          : '';
+
+      const response = await fetch(`${API_BASE}/logout`, {
         method: 'GET',
         credentials: 'include'
       });
@@ -93,7 +98,6 @@ function bindUiControls() {
         console.error('登出失敗');
         return;
       }
-
       // 清除前端目前遊戲狀態
       currentBoard = [];
       currentRevealed = [];
@@ -113,7 +117,9 @@ function bindUiControls() {
       }
 
       // 登出後回登入頁
-      window.location.href = '/login';
+      window.location.href = config.isGitHubPages
+  ? '/Revamp-project/login'
+  : '/login';
 
     } catch (error) {
       console.error('登出失敗：', error);
