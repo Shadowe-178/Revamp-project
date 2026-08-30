@@ -118,7 +118,7 @@ function bindUiControls() {
 
       // 登出後回登入頁
       window.location.href = config.isGitHubPages
-  ? '/Revamp-project/login'
+  ? 'https://smartchess-5oeu.onrender.com/login'
   : '/login';
 
     } catch (error) {
