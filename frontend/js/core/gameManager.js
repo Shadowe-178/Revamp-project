@@ -372,7 +372,12 @@ async function tryMove(from, to) {
       return;
     }
 
-    undoStack.push({ board: previousBoard, revealed: JSON.parse(JSON.stringify(currentRevealed)), move: `${from} -> ${to}` });
+    undoStack.push({
+  board: previousBoard,
+  revealed: JSON.parse(JSON.stringify(currentRevealed)),
+  currentColor,
+  move: `${from} -> ${to}`
+});
     history.push(`${from} -> ${to}`);
     currentBoard = state.pieces;
     currentRevealed = state.revealed;
@@ -411,7 +416,12 @@ async function tryMove(from, to) {
     return;
   }
 
-  undoStack.push({ board: previousBoard, revealed: JSON.parse(JSON.stringify(currentRevealed)), move: `${from} -> ${to}` });
+undoStack.push({
+  board: previousBoard,
+  revealed: JSON.parse(JSON.stringify(currentRevealed)),
+  currentColor,
+  move: `${from} -> ${to}`
+});
   history.push(`${from} -> ${to}`);
   currentBoard = state.board;
   selectedFrom = null;
@@ -690,25 +700,51 @@ async function getLegalMoves(fromPos) {
 
 function undoMove() {
   if (hasJustUndone) {
-    setStatus('必須先走棋，才能再次悔棋', currentColor, config.aiLevel);
+    setStatus(
+      '必須先走棋，才能再次悔棋',
+      currentColor,
+      config.aiLevel
+    );
     return;
   }
 
   const snapshot = undoStack.pop();
+
   if (!snapshot) {
-    setStatus('沒有可悔的步驟', currentColor, config.aiLevel);
+    setStatus(
+      '沒有可悔的步驟',
+      currentColor,
+      config.aiLevel
+    );
     return;
   }
 
   currentBoard = snapshot.board;
   currentRevealed = snapshot.revealed || [];
+
+  // 恢復悔棋前的回合
+  currentColor = snapshot.currentColor || currentColor;
+
   history.pop();
   selectedFrom = null;
   legalTargets.clear();
+
+  // 悔棋後恢復遊戲狀態
   hasJustUndone = true;
-  renderCurrentBoard(document.getElementById('boardContainer'));
+  isGameOver = false;
+  winner = null;
+
+  renderCurrentBoard(
+    document.getElementById('boardContainer')
+  );
+
   renderHistory();
-  setStatus('悔棋成功（必須先走棋才能再悔）', currentColor, config.aiLevel);
+
+  setStatus(
+    '悔棋成功（必須先走棋才能再悔）',
+    currentColor,
+    config.aiLevel
+  );
 }
 
 function saveGame() {
