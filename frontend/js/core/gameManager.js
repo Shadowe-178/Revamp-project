@@ -293,7 +293,7 @@ const response = await fetch(`${activeMode.apiBase}/flip`,  {
   currentColor
 });
   if (currentMode === 'darkAi' && currentColor !== 'red') {
-    await runAiTurn('/api/dark');
+    await runAiTurn(config.modes.darkAi.apiBase);
   }
 }
 
