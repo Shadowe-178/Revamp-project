@@ -1,4 +1,4 @@
-import { config } from '../config.js';
+﻿import { config } from '../config.js';
 import { renderBoard } from '../ui/boardUI.js';
 import { saveLocal, loadLocal } from '../storage/localStorage.js';
 import { getAiMove } from '../ai/aiEngine.js';
@@ -20,6 +20,38 @@ let hasJustUndone = false;
 let isGameOver = false;
 let winner = null;
 
+async function fetchWithRetry(url, options = {}, maxRetries = 4) {
+  const delays = [0, 2000, 5000, 10000, 15000];
+  let lastError = null;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      if (delays[attempt] > 0) {
+        await new Promise(resolve =>
+          setTimeout(resolve, delays[attempt])
+        );
+      }
+
+      const response = await fetch(url, options);
+
+      if (response.status === 401 || response.status === 403) {
+        return response;
+      }
+
+      if (response.ok) {
+        return response;
+      }
+
+      lastError = new Error(`HTTP ${response.status}`);
+
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError || new Error('API request failed');
+}
+
 export async function initGame() {
   const boardContainer = document.getElementById('boardContainer');
   const statusMessage = document.getElementById('statusMessage');
@@ -35,13 +67,24 @@ export async function initGame() {
     uiBound = true;
   }
 
-  const activeMode = config.modes[currentMode] || config.modes.xiangqi;
+  const activeMode =
+    config.modes[currentMode] || config.modes.xiangqi;
+
   try {
-    const response = await fetch(`${activeMode.apiBase}/init`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' }
-    });
+    statusMessage.textContent = 'Starting SmartChess server...';
+    turnInfo.textContent = 'Turn: Connecting';
+    aiInfo.textContent = 'AI: Initializing';
+
+    const response = await fetchWithRetry(
+      `${activeMode.apiBase}/init`,
+      {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
 
     if (!response.ok) {
       statusMessage.textContent = '未登入或 API 連線失敗';
@@ -118,7 +161,7 @@ function bindUiControls() {
 
       // 登出後回登入頁
       window.location.href = config.isGitHubPages
-  ? 'https://smartchess-5oeu.onrender.com/login'
+  ? '/Revamp-project/login'
   : '/login';
 
     } catch (error) {
@@ -293,7 +336,7 @@ const response = await fetch(`${activeMode.apiBase}/flip`,  {
   currentColor
 });
   if (currentMode === 'darkAi' && currentColor !== 'red') {
-    await runAiTurn(config.modes.darkAi.apiBase);
+    await runAiTurn('/api/dark');
   }
 }
 
