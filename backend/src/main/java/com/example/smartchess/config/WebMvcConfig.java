@@ -21,7 +21,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/css/**",
                         "/js/**",
                         "/images/**",
-                        "/api/**"
+                        "/api/**",
+                        "/error"
+
                 );
     }
 }

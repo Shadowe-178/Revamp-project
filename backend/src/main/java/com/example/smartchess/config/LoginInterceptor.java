@@ -16,18 +16,32 @@ public class LoginInterceptor implements HandlerInterceptor {
 
         String path = request.getRequestURI();
 
-        // API 不走網頁登入攔截
+        System.out.println("========== LOGIN INTERCEPTOR ==========");
+        System.out.println("URI: " + path);
+        System.out.println("Method: " + request.getMethod());
+        System.out.println("ContextPath: " + request.getContextPath());
+
         if (path.startsWith("/api/")) {
+            System.out.println("API BYPASS: TRUE");
+            System.out.println("=======================================");
             return true;
         }
 
-        // 一般網頁需要登入
+        System.out.println("API BYPASS: FALSE");
+
         Object user = request.getSession().getAttribute("user");
 
+        System.out.println("Session user exists: " + (user != null));
+
         if (user == null) {
+            System.out.println("REDIRECT TO LOGIN");
+            System.out.println("=======================================");
             response.sendRedirect("/login");
             return false;
         }
+
+        System.out.println("LOGIN ALLOWED");
+        System.out.println("=======================================");
 
         return true;
     }
