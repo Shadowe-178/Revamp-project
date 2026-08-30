@@ -46,4 +46,4 @@ ENV PORT=8080
 
 EXPOSE 8080
 
-ENTRYPOINT ["sh", "-c", "java -Dserver.port=${PORT:-8080} -Dserver.address=0.0.0.0 -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "java -Dspring.profiles.active=render -Dserver.port=${PORT:-8080} -Dserver.address=0.0.0.0 -jar app.jar"]
