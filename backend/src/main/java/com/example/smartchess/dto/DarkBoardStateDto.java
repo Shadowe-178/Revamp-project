@@ -5,6 +5,8 @@ public class DarkBoardStateDto {
     private boolean[][] revealed;
     private String currentPlayer;
     private String message;
+    private boolean gameOver;
+    private String winner;
 
     public String[][] getPieces() {
         return pieces;
@@ -36,5 +38,21 @@ public class DarkBoardStateDto {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
+    }
+
+    public String getWinner() {
+        return winner;
+    }
+
+    public void setWinner(String winner) {
+        this.winner = winner;
     }
 }

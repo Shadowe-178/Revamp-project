@@ -453,6 +453,14 @@ async function runAiTurn(apiBase) {
 
   console.log("★★★★★ runAiTurn 被呼叫 ★★★★★");
 
+  // =========================================================
+  // 先確認遊戲是否已經結束
+  // =========================================================
+  if (isGameOver) {
+    console.log("★★★★★ 遊戲已結束，不再執行 AI ★★★★★");
+    return;
+  }
+
   const aiMove = await getAiMove({
     board: currentBoard,
     color: currentColor,
@@ -464,7 +472,7 @@ async function runAiTurn(apiBase) {
   console.log("AI Move =", aiMove);
 
   // =========================================================
-  // 暗棋 AI：如果 AI 沒有走棋，代表現在需要翻牌
+  // 暗棋 AI：AI 沒有走棋 → 嘗試翻牌
   // =========================================================
   if (currentMode === 'darkAi' && (!aiMove?.from || !aiMove?.to)) {
 
@@ -485,27 +493,58 @@ async function runAiTurn(apiBase) {
 
     console.log("AI 可翻的暗棋格 =", hiddenCells);
 
-    // 已經沒有可以翻的棋
+    // =======================================================
+    // 🔴 沒有任何暗棋可以翻
+    // =======================================================
     if (hiddenCells.length === 0) {
-      console.log("★★★★★ 已經沒有暗棋可以翻 ★★★★★");
+
+      console.log(
+        "★★★★★ 沒有可走棋步，也沒有可以翻開的棋子 ★★★★★"
+      );
+
+      // 目前玩家就是無法行動的一方
+      const winnerColor =
+        currentColor === 'red'
+          ? 'black'
+          : 'red';
+
+      isGameOver = true;
+      winner = winnerColor;
+
+      const winnerLabel =
+        winnerColor === 'red'
+          ? '紅方'
+          : '黑方';
+
       setStatus(
-        '已經沒有可以翻開的棋子',
+        `遊戲結束！${winnerLabel}獲勝！`,
         currentColor,
         config.aiLevel
       );
+
+      console.log(
+        `★★★★★ 暗棋 AI 無法行動，${winnerLabel}獲勝 ★★★★★`
+      );
+
+      renderCurrentBoard(
+        document.getElementById('boardContainer')
+      );
+
       return;
     }
 
-    // 隨機選一個還沒翻開的位置
+    // =======================================================
+    // 還有暗棋 → 隨機翻一張
+    // =======================================================
     const selectedCell =
-      hiddenCells[Math.floor(Math.random() * hiddenCells.length)];
+      hiddenCells[
+        Math.floor(Math.random() * hiddenCells.length)
+      ];
 
     console.log(
       `★★★★★ AI 選擇翻牌：${selectedCell.x},${selectedCell.y} ★★★★★`
     );
 
-    // 注意：
-    // /api/dark/flip 必須收到 x、y
     const flipResponse = await fetch(`${apiBase}/flip`, {
       method: 'POST',
       headers: {
@@ -526,7 +565,11 @@ async function runAiTurn(apiBase) {
     console.log("AI 翻牌回應 =", flipState);
 
     if (!flipResponse.ok) {
-      console.error("AI 翻牌失敗 =", flipState);
+
+      console.error(
+        "AI 翻牌失敗 =",
+        flipState
+      );
 
       setStatus(
         flipState.message || 'AI 翻牌失敗',
@@ -537,15 +580,45 @@ async function runAiTurn(apiBase) {
       return;
     }
 
+    // =======================================================
+    // 更新翻牌後狀態
+    // =======================================================
     currentBoard = flipState.pieces;
     currentRevealed = flipState.revealed;
-    currentColor = flipState.currentPlayer || currentColor;
+    currentColor =
+      flipState.currentPlayer || currentColor;
 
     renderCurrentBoard(
       document.getElementById('boardContainer')
     );
 
     renderHistory();
+
+    // =======================================================
+    // 🔴 後端如果判定翻牌後直接結束
+    // =======================================================
+    if (flipState.gameOver && flipState.winner) {
+
+      isGameOver = true;
+      winner = flipState.winner;
+
+      const winnerLabel =
+        winner === 'red'
+          ? '紅方'
+          : '黑方';
+
+      setStatus(
+        `遊戲結束！${winnerLabel}獲勝！`,
+        currentColor,
+        config.aiLevel
+      );
+
+      console.log(
+        `★★★★★ 暗棋翻牌後遊戲結束：${winnerLabel}獲勝 ★★★★★`
+      );
+
+      return;
+    }
 
     setStatus(
       flipState.message || 'AI 已翻牌',
@@ -563,11 +636,20 @@ async function runAiTurn(apiBase) {
   }
 
   // =========================================================
-  // 一般中國象棋 / AI 暗棋：AI 有棋可以走
+  // AI 沒有任何走法
   // =========================================================
-
   if (!aiMove?.from || !aiMove?.to) {
-    console.log("AI 沒有可執行的棋步");
+
+    console.log(
+      "★★★★★ AI 沒有可執行的棋步 ★★★★★"
+    );
+
+    setStatus(
+      'AI 沒有可執行的棋步',
+      currentColor,
+      config.aiLevel
+    );
+
     return;
   }
 
@@ -575,6 +657,9 @@ async function runAiTurn(apiBase) {
     `★★★★★ AI 走棋：${aiMove.from} -> ${aiMove.to} ★★★★★`
   );
 
+  // =========================================================
+  // AI 執行走棋
+  // =========================================================
   const aiResponse = await fetch(`${apiBase}/move`, {
     method: 'POST',
     headers: {
@@ -606,7 +691,11 @@ async function runAiTurn(apiBase) {
   console.log("AI 走棋回應 =", aiState);
 
   if (!aiResponse.ok) {
-    console.error("AI 走棋失敗 =", aiState);
+
+    console.error(
+      "AI 走棋失敗 =",
+      aiState
+    );
 
     setStatus(
       aiState.message || 'AI 走棋失敗',
@@ -618,22 +707,50 @@ async function runAiTurn(apiBase) {
   }
 
   // =========================================================
-  // 暗棋 AI 走棋成功
+  // 🔴 暗棋 AI 走棋成功
   // =========================================================
-
   if (currentMode === 'darkAi') {
 
     currentBoard = aiState.pieces;
     currentRevealed = aiState.revealed;
-    currentColor = aiState.currentPlayer || currentColor;
+    currentColor =
+      aiState.currentPlayer || currentColor;
 
-    history.push(`${aiMove.from} -> ${aiMove.to}`);
+    history.push(
+      `${aiMove.from} -> ${aiMove.to}`
+    );
 
     renderCurrentBoard(
       document.getElementById('boardContainer')
     );
 
     renderHistory();
+
+    // =======================================================
+    // 🔴 AI 吃掉最後棋子 / 後端判定遊戲結束
+    // =======================================================
+    if (aiState.gameOver && aiState.winner) {
+
+      isGameOver = true;
+      winner = aiState.winner;
+
+      const winnerLabel =
+        winner === 'red'
+          ? '紅方'
+          : '黑方';
+
+      setStatus(
+        `遊戲結束！${winnerLabel}獲勝！`,
+        currentColor,
+        config.aiLevel
+      );
+
+      console.log(
+        `★★★★★ 暗棋 AI 走棋後遊戲結束：${winnerLabel}獲勝 ★★★★★`
+      );
+
+      return;
+    }
 
     setStatus(
       'AI 已完成回合',
@@ -653,17 +770,39 @@ async function runAiTurn(apiBase) {
   // =========================================================
   // 中國象棋 AI 走棋成功
   // =========================================================
-
   currentBoard = aiState.board;
-  currentColor = aiState.currentPlayer || currentColor;
 
-  history.push(`${aiMove.from} -> ${aiMove.to}`);
+  currentColor =
+    aiState.currentPlayer || currentColor;
+
+  history.push(
+    `${aiMove.from} -> ${aiMove.to}`
+  );
 
   renderCurrentBoard(
     document.getElementById('boardContainer')
   );
 
   renderHistory();
+
+  if (aiState.gameOver && aiState.winner) {
+
+    isGameOver = true;
+    winner = aiState.winner;
+
+    const winnerLabel =
+      winner === 'red'
+        ? '紅方'
+        : '黑方';
+
+    setStatus(
+      `遊戲結束！${winnerLabel}獲勝！`,
+      currentColor,
+      config.aiLevel
+    );
+
+    return;
+  }
 
   setStatus(
     'AI 已完成回合',

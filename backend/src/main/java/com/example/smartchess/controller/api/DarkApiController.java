@@ -43,6 +43,8 @@ public class DarkApiController {
         state.setRevealed(new boolean[8][4]);
         state.setCurrentPlayer("red");
         state.setMessage("暗棋棋盤已初始化");
+        state.setGameOver(false);
+        state.setWinner(null);
 
         return state;
     }
@@ -68,8 +70,16 @@ public class DarkApiController {
                 player = "red";
             }
 
-            state.setCurrentPlayer(nextPlayer(player));
+            String next = nextPlayer(player);
+
+            state.setCurrentPlayer(next);
             state.setMessage("玩家翻棋成功");
+            checkGameOver(
+                state,
+                request.getPieces(),
+                updatedRevealed,
+                next,
+                player);
 
             return ResponseEntity.ok(state);
 
@@ -96,6 +106,8 @@ public class DarkApiController {
                             ? "red"
                             : request.getCurrentPlayer();
 
+            String next = nextPlayer(currentPlayer);
+
             String[][] updatedPieces =
                     moveService.applyMove(
                             request.getPieces(),
@@ -108,8 +120,15 @@ public class DarkApiController {
             DarkBoardStateDto state = new DarkBoardStateDto();
             state.setPieces(updatedPieces);
             state.setRevealed(request.getRevealed());
-            state.setCurrentPlayer(nextPlayer(currentPlayer));
+            state.setCurrentPlayer(next);
             state.setMessage("暗棋走法成功");
+
+            checkGameOver(
+                state,
+                updatedPieces,
+                request.getRevealed(),
+                next,
+                currentPlayer);
 
             return ResponseEntity.ok(state);
 
@@ -142,10 +161,64 @@ public class DarkApiController {
     }
 
     private String nextPlayer(String currentPlayer) {
-        return "red".equalsIgnoreCase(currentPlayer)
-                ? "black"
-                : "red";
+    return "red".equalsIgnoreCase(currentPlayer)
+            ? "black"
+            : "red";
+}
+
+private void checkGameOver(
+        DarkBoardStateDto state,
+        String[][] pieces,
+        boolean[][] revealed,
+        String nextPlayer,
+        String lastPlayer) {
+
+    boolean hasHiddenPiece = false;
+
+    for (int y = 0; y < revealed.length; y++) {
+        for (int x = 0; x < revealed[y].length; x++) {
+            if (!revealed[y][x]) {
+                hasHiddenPiece = true;
+                break;
+            }
+        }
+
+        if (hasHiddenPiece) {
+            break;
+        }
     }
+
+    // 還有未翻開棋子，遊戲繼續
+    if (hasHiddenPiece) {
+        state.setGameOver(false);
+        state.setWinner(null);
+        return;
+    }
+
+    // 全部翻開後，檢查下一位是否還有合法走法
+    boolean nextPlayerCanMove =
+            !ruleService
+                    .findLegalMoves(
+                            pieces,
+                            revealed,
+                            nextPlayer)
+                    .isEmpty();
+
+    if (!nextPlayerCanMove) {
+        state.setGameOver(true);
+        state.setWinner(lastPlayer);
+
+        state.setMessage(
+                "遊戲結束！"
+                        + ("red".equalsIgnoreCase(lastPlayer)
+                        ? "紅方"
+                        : "黑方")
+                        + "獲勝！");
+    } else {
+        state.setGameOver(false);
+        state.setWinner(null);
+    }
+}
 
     @PostMapping("/ai")
     public ResponseEntity<ChessMoveDto> ai(
